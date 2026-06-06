@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 30px 16px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1a73e8;
+      margin-bottom: 6px;
+    }
+
+    p.subtitulo {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      background: white;
+      padding: 24px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .input-area {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #1a73e8;
+    }
+
+    .select-pri {
+      padding: 10px 8px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+    }
+
+    button.btn-add {
+      padding: 10px 16px;
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    button.btn-add:hover {
+      background-color: #1558b0;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filtros button {
+      padding: 5px 12px;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      color: #444;
+    }
+
+    .filtros button.ativo {
+      background: #1a73e8;
+      color: white;
+      border-color: #1a73e8;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    li:last-child { border-bottom: none; }
+
+    li.concluida .tarefa-texto {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .prioridade {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .pri-alta   { background: #e53935; }
+    .pri-media  { background: #fb8c00; }
+    .pri-baixa  { background: #43a047; }
+
+    .tarefa-texto {
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .btn-concluir {
+      padding: 4px 10px;
+      font-size: 12px;
+      background: #43a047;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-concluir:hover { background: #2e7d32; }
+
+    .btn-desfazer {
+      padding: 4px 10px;
+      font-size: 12px;
+      background: #fb8c00;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-remover {
+      padding: 4px 10px;
+      font-size: 12px;
+      background: #e53935;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-remover:hover { background: #b71c1c; }
+
+    .rodape {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .btn-limpar {
+      padding: 5px 12px;
+      font-size: 12px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #666;
+    }
+    .btn-limpar:hover { background: #eee; }
+
+    .vazio {
+      text-align: center;
+      color: #bbb;
+      font-size: 14px;
+      padding: 24px 0;
+    }
+
+    .barra-wrap {
+      background: #f0f0f0;
+      border-radius: 10px;
+      height: 6px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .barra-fill {
+      height: 100%;
+      background: #1a73e8;
+      border-radius: 10px;
+      transition: width 0.4s;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📝 To-Do List</h1>
+  <p class="subtitulo">Organize suas tarefas do dia a dia</p>
+
+  <div class="container">
+
+    <div class="input-area">
+      <input type="text" id="campo" placeholder="Digite uma tarefa..." />
+      <select class="select-pri" id="prioridade">
+        <option value="media">⚡ Média</option>
+        <option value="alta">🔴 Alta</option>
+        <option value="baixa">🟢 Baixa</option>
+      </select>
+      <button class="btn-add" onclick="adicionar()">+ Add</button>
+    </div>
+
+    <div class="filtros">
+      <button class="ativo" onclick="filtrar('todas', this)">Todas</button>
+      <button onclick="filtrar('pendentes', this)">Pendentes</button>
+      <button onclick="filtrar('concluidas', this)">Concluídas</button>
+      <button onclick="filtrar('alta', this)">🔴 Alta</button>
+      <button onclick="filtrar('media', this)">⚡ Média</button>
+      <button onclick="filtrar('baixa', this)">🟢 Baixa</button>
+    </div>
+
+    <div class="barra-wrap">
+      <div class="barra-fill" id="barra" style="width:0%"></div>
+    </div>
+
+    <ul id="lista"></ul>
+    <div class="vazio" id="vazio">Nenhuma tarefa encontrada.</div>
+
+    <div class="rodape">
+      <span id="contador"></span>
+      <button class="btn-limpar" onclick="limparConcluidas()">Limpar concluídas</button>
+    </div>
+  </div>
+
+<script>
+  var tarefas = JSON.parse(localStorage.getItem('todo_wallace') || '[]');
+  var filtroAtual = 'todas';
+
+  document.getElementById('campo').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') adicionar();
+  });
+
+  function adicionar() {
+    var texto = document.getElementById('campo').value.trim();
+    if (!texto) { alert('Digite uma tarefa!'); return; }
+    tarefas.push({
+      id: Date.now(),
+      texto: texto,
+      prioridade: document.getElementById('prioridade').value,
+      concluida: false
+    });
+    document.getElementById('campo').value = '';
+    salvar();
+    renderizar();
+  }
+
+  function concluir(id) {
+    for (var i = 0; i < tarefas.length; i++) {
+      if (tarefas[i].id === id) { tarefas[i].concluida = !tarefas[i].concluida; break; }
+    }
+    salvar(); renderizar();
+  }
+
+  function remover(id) {
+    tarefas = tarefas.filter(function(t) { return t.id !== id; });
+    salvar(); renderizar();
+  }
+
+  function limparConcluidas() {
+    tarefas = tarefas.filter(function(t) { return !t.concluida; });
+    salvar(); renderizar();
+  }
+
+  function filtrar(f, btn) {
+    filtroAtual = f;
+    document.querySelectorAll('.filtros button').forEach(function(b) { b.classList.remove('ativo'); });
+    btn.classList.add('ativo');
+    renderizar();
+  }
+
+  function getFiltradas() {
+    return tarefas.filter(function(t) {
+      if (filtroAtual === 'pendentes')  return !t.concluida;
+      if (filtroAtual === 'concluidas') return t.concluida;
+      if (filtroAtual === 'alta')       return t.prioridade === 'alta';
+      if (filtroAtual === 'media')      return t.prioridade === 'media';
+      if (filtroAtual === 'baixa')      return t.prioridade === 'baixa';
+      return true;
+    });
+  }
+
+  function salvar() {
+    localStorage.setItem('todo_wallace', JSON.stringify(tarefas));
+  }
+
+  function renderizar() {
+    var lista = document.getElementById('lista');
+    var vazio = document.getElementById('vazio');
+    var filtradas = getFiltradas();
+    var concluidas = tarefas.filter(function(t) { return t.concluida; }).length;
+    var pct = tarefas.length ? Math.round(concluidas / tarefas.length * 100) : 0;
+
+    document.getElementById('barra').style.width = pct + '%';
+    document.getElementById('contador').textContent = concluidas + ' de ' + tarefas.length + ' concluídas (' + pct + '%)';
+
+    lista.innerHTML = '';
+
+    if (filtradas.length === 0) {
+      vazio.style.display = 'block';
+      return;
+    }
+    vazio.style.display = 'none';
+
+    filtradas.forEach(function(t) {
+      var li = document.createElement('li');
+      if (t.concluida) li.className = 'concluida';
+
+      var dot = document.createElement('div');
+      dot.className = 'prioridade pri-' + t.prioridade;
+
+      var span = document.createElement('span');
+      span.className = 'tarefa-texto';
+      span.textContent = t.texto;
+
+      var btnC = document.createElement('button');
+      btnC.className = t.concluida ? 'btn-desfazer' : 'btn-concluir';
+      btnC.textContent = t.concluida ? 'Desfazer' : 'Concluir';
+      btnC.onclick = (function(id) { return function() { concluir(id); }; })(t.id);
+
+      var btnR = document.createElement('button');
+      btnR.className = 'btn-remover';
+      btnR.textContent = 'Remover';
+      btnR.onclick = (function(id) { return function() { remover(id); }; })(t.id);
+
+      li.appendChild(dot);
+      li.appendChild(span);
+      li.appendChild(btnC);
+      li.appendChild(btnR);
+      lista.appendChild(li);
+    });
+  }
+
+  renderizar();
+</script>
+</body>
+</html>
